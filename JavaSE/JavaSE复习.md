@@ -2,7 +2,7 @@
 
 ### Java内存模型
 
-![img](file:///C:\Users\史云龙\AppData\Local\Temp\ksohtml\wpsC8B1.tmp.jpg) 
+![img](img/wpsC8B1.tmp.jpg) 
 
 每个线程都持有变量的副本，当需要线程之间通信时，要先改变副本，在提交到堆中。
 
@@ -19,8 +19,6 @@
 ### Clone方法
 
 java.lang.Cloneable是一个标志性接口，不包含任何方法，clone方法在Object类中定义。clone是一个本地方法，由C或C++实现。
-
- 
 
 ### a=a+b和a+=b
 
@@ -276,8 +274,10 @@ StringBuffer和StringBuilder都继承了AbstractStringBuilder，底层都是利�
 
 所以如果我们有大量的字符串拼接，如果能预知大小的话最好在new StringBuffer 或者StringBuilder 的时候设置好capacity，避免多次扩容的开销。扩容要抛弃原有数组，还要进行数组拷贝创建新的数组。
 
- 
+###  HashMap为什么用红黑树而不是AVL平衡树
 
- 
+ 红黑树牺牲了写查找性能，插入删除操作性能高一些。
+
+AVL有严格的平衡策略，适用于查找密集型的任务，而为了维护平衡，增加和删除操作相对于红黑树就要麻烦一些，需要更高的旋转次数。
 
  
