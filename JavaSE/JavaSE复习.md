@@ -100,6 +100,8 @@ static方法在编译时是静态绑定的，属于类，而覆盖是运行时�
 
 HashMap内部是通过一个数组实现的，数组类型为Entry，包含key，value，next指针。
 
+默认容量16，加载因子0.75，扩容一倍
+
 put时，根据key值进行hash运算，得到hashcode后与数组长度进行取模运算，得到将要放置的数组位置。
 
 get时，根据key计算hash，计算出数组下标，再遍历链表比较完整的hashcode。
