@@ -2,7 +2,7 @@
 
 
 
-[JavaSE]: https://github.com/qianyu12138/review/blob/master/JavaSE/JavaSE%E5%A4%8D%E4%B9%A0.md
+[JavaSE]: (https://github.com/qianyu12138/review/blob/master/JavaSE/JavaSE%E5%A4%8D%E4%B9%A0.md)
 
 
 
