@@ -282,4 +282,32 @@ StringBuffer和StringBuilder都继承了AbstractStringBuilder，底层都是利�
 
 AVL有严格的平衡策略，适用于查找密集型的任务，而为了维护平衡，增加和删除操作相对于红黑树就要麻烦一些，需要更高的旋转次数。
 
- 
+###  异常类型
+
+异常分为检查性异常和非检查性异常，对于非检查性异常也叫RuntimeException，对于非检查性异常的几种处理方式：
+
+- 捕获
+- 继续抛出
+- 不处理
+
+![](img/异常类型.png)
+
+### Object的方法
+
+hashCode():int
+
+equals(Object obj):boolean
+
+clone():Object
+
+toString():String
+
+finialize():void
+
+
+
+final:
+
+wait()
+
+notify()/notifyAll()

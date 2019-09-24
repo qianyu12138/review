@@ -128,3 +128,10 @@ public class Main {
 
 - 拉链法
 
+##### char存储中文字符
+
+能，比如String的subString，坐标无论是中文还是英文都占一个，Java采用unicode编码，中文和英文都占两个字节。
+
+String堆的内存地址
+
+继承抛方法
