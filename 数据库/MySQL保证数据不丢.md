@@ -83,3 +83,11 @@ binlog_group_commit_sync_delay 参数，表示延迟多少微秒后才调用 fsy
 
 将 innodb_flush_log_at_trx_commit 设置为 2。这样做的风险是，主机掉电的时候会丢数据。
 
+### 什么情况下会手动改到非双1配置？
+
+1. 业务高峰期，有预知的高峰期，DBA会有预案，降低数据库压力。
+2. 备库延迟，为了让备库尽快赶上主库。
+3. 用备库恢复主库的副本，应用binlog的过程。、
+4. 批量导入数据。
+
+一般情况下，把生产库改成“非双 1”配置，是设置 innodb_flush_logs_at_trx_commit=2、sync_binlog=1000。
