@@ -96,32 +96,6 @@ public BigDecimal(String val)建议采用，double可采用Double.toString(doubl
 
 static方法在编译时是静态绑定的，属于类，而覆盖是运行时动态绑定的，因此不能覆盖。
 
-### HashMap的工作原理
-
-HashMap内部是通过一个数组实现的，数组类型为Entry，包含key，value，next指针。
-
-默认容量16，加载因子0.75，扩容一倍
-
-put时，根据key值进行hash运算，得到hashcode后与数组长度进行取模运算，得到将要放置的数组位置。
-
-get时，根据key计算hash，计算出数组下标，再遍历链表比较完整的hashcode。
-
-如果size超过阈值（容量*加载因子），扩容后重排
-
-减少碰撞：使用不可变的或final类作为键值，因为这些类已经重写了equals()和hashcode()。
-
-对于单个桶中元素过多时，超过一定数量（default 8，可指定）会变成红黑树，查询效率O(log n)
-
-多线程下冲突链表死循环：当多个线程进行插入操作时刚好发生扩容操作，线程一执行时被挂起，线程二执行完扩容，线程一执行完，两线程对于链表进行的重排序会导致循环引用。当再次调用到其中的get()方法时，会进入死循环。
-
-HashTable是线程安全的，但每次操作都会锁住整个表，效率低下。
-
-ConcurrentHashMap是线程安全的，采用数组+链表多段存储，允许多个线程进行修改操作，关键是锁分离技术，而对于size()等需要跨段的方法，仍需锁住整个表。
-
-因为Entry的value是volatile，不会synchronize读操作也能保证读取到最新的值。
-
-锁分段技术：首先将数据分成一段一段的存储，然后给每一段数据配一把锁，当一个线程占用锁访问其中一个段数据的时候，其他段的数据也能被其他线程访问。
-
 ### JAVA8新特性
 
 1. default关键字
@@ -278,12 +252,6 @@ StringBuffer和StringBuilder都继承了AbstractStringBuilder，底层都是利�
 
 所以如果我们有大量的字符串拼接，如果能预知大小的话最好在new StringBuffer 或者StringBuilder 的时候设置好capacity，避免多次扩容的开销。扩容要抛弃原有数组，还要进行数组拷贝创建新的数组。
 
-###  HashMap为什么用红黑树而不是AVL平衡树
-
- 红黑树牺牲了写查找性能，插入删除操作性能高一些。
-
-AVL有严格的平衡策略，适用于查找密集型的任务，而为了维护平衡，增加和删除操作相对于红黑树就要麻烦一些，需要更高的旋转次数。
-
 ###  异常类型
 
 异常分为检查性异常和非检查性异常，对于非检查性异常也叫RuntimeException，对于非检查性异常的几种处理方式：
@@ -313,3 +281,22 @@ final:
 wait()
 
 notify()/notifyAll()
+
+### hashCode和equal方法
+
+hashCode的存在是为了在一些散列的比较中提高equal的效率，先找出hashCode相等的元素再进行比较。
+
+所以，就要求当equal为true时，hashCode也必须相等，反之则不然（hash冲突）
+
+### 深拷贝与浅拷贝
+
+同值传递与引用传递，深拷贝是一个新的对象，属性都与原对象相等，而浅拷贝只是拷贝引用地址，是同一个对象。
+
+java的clone是浅拷贝。
+
+### RuntimeException Exception Error
+
+![img](./img/error.png)
+
+Exception是程序正常运行中可以预料的意外情况，可能并且应该被捕获，进行相应处理。Error则是指在正常情况下，不大可能出现的情况，绝大部分的Error都会导致程序（比如JVM）处于非正常的、不可恢复状态。既然是非正常情况，所以不便于也不需要捕获，常见的比如OutOfMemoryError，其为Error的子类。
+
