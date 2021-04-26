@@ -300,3 +300,7 @@ java的clone是浅拷贝。
 
 Exception是程序正常运行中可以预料的意外情况，可能并且应该被捕获，进行相应处理。Error则是指在正常情况下，不大可能出现的情况，绝大部分的Error都会导致程序（比如JVM）处于非正常的、不可恢复状态。既然是非正常情况，所以不便于也不需要捕获，常见的比如OutOfMemoryError，其为Error的子类。
 
+NoClassDefFoundError 由虚拟机抛出，编译的时候存在，编译后运行时找不到class
+
+ClassNotFoundException 当动态加载一些类找不到时抛出。
+
