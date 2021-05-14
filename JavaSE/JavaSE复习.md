@@ -58,21 +58,31 @@ String（jdk7+，内部实现是用hashcode）
 
 长度与平台无关
 
-byte 8位
+- byte 8位
 
-short 16位
+- short 16位
 
-int 32位
+- int 32位
 
-long 64位
+- long 64位
 
-float 32位
+- float 32位
 
-double 64位
+1bit（符号位） 
 
-boolean
+8bits（指数位） 
 
-char
+23bits（尾数位）
+
+范围：float的范围为-2^128 ~ +2^128
+
+精度：2^23 = 8388608，一共七位，这意味着最多能有7位有效数字，但绝对能保证的为6位，也即float的精度为6~7位有效数字；
+
+- double 64位
+
+- boolean
+
+- char
 
 ### BigDecimal
 

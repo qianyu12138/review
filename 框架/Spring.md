@@ -4,7 +4,7 @@
 
 # Spring
 
-## 生命周期
+## 容器生命周期
 
 创建：
 
@@ -48,6 +48,14 @@ applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
 ##### Spring底层对 BeanPostProcessor 的使用；
 
 bean赋值，注入其他组件(一些xxxAware，常用的ApplicationContextAware)，@Autowired（AutowiredAnnotationBeanPostProcessor），生命周期注解功能，@Async,xxx BeanPostProcessor;
+
+### Bean创建过程
+
+单例
+
+容器启动时，使用AnnoactionBeanDefinationReader或XmlBeanDefinationReader将bean配置读入内存，以BeanDefination的形式存在于BeanDefinationRegistry中。
+
+默认懒加载，需要时才启动Bean的实例化，将BeanDefination转换成BeanWapper，通过其封装的反射方法调用构造器建立对象与属性，之后是一系列BeanPostProcesser，比如对象依赖注入，如果依赖其他Bean则暂停当前初始化，去创建其他Bean（三级缓存），aware接口（ApplicationContextAware等），自定义的初始化销毁方法。
 
 ## 三级缓存
 
@@ -212,7 +220,7 @@ Spring框架并没有对单例bean进行任何多线程的封装处理。关于�
 
 - CGLIB（Code Generation Library），是一个代码生成的类库，可以在运行时动态的生成指定类的一个子类对象，并覆盖其中特定方法并添加增强代码，从而实现AOP。CGLIB是通过继承的方式做的动态代理，因此如果某个类被标记为final，那么它是无法使用CGLIB做动态代理的。
 
-## AOP关键词
+### AOP关键词
 
 （1）切面（Aspect）：被抽取的公共模块，可能会横切多个对象。 在Spring AOP中，切面可以使用通用类（基于模式的风格） 或者在普通类中以 @AspectJ 注解来实现。
 
@@ -232,9 +240,9 @@ Spring框架并没有对单例bean进行任何多线程的封装处理。关于�
 
 ### 动态代理
 
-1,动态代理
+1，JDK动态代理
 
-动态代理要求被代理对象必须实现接口。
+JDK动态代理要求被代理对象必须实现接口。
 
 2，CGLIB代理
 
