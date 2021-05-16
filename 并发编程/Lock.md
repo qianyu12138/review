@@ -15,6 +15,7 @@ public void lock()
 #### lockInterruptibly
 
 public void lockInterruptibly() throws InterruptedException
+
 1）如果当前线程未被中断，则获取锁。 
 
 2）如果该锁没有被另一个线程保持，则获取该锁并立即返回，将锁的保持计数设置为 1。 
@@ -23,13 +24,15 @@ public void lockInterruptibly() throws InterruptedException
 
 4）如果锁被另一个线程保持，则出于线程调度目的，禁用当前线程，并且在发生以下两种情况之一以
 前，该线程将一直处于休眠状态： 
-     1）锁由当前线程获得；或者 
+
+​     1）锁由当前线程获得；或者 
 
 ​     2）其他某个线程中断当前线程。 
 
 5）如果当前线程获得该锁，则将锁保持计数设置为 1。 
    如果当前线程： 
-      1）在进入此方法时已经设置了该线程的中断状态；或者 
+
+​      1）在进入此方法时已经设置了该线程的中断状态；或者 
 
 ​      2）在等待获取锁的同时被中断。 
 
@@ -40,6 +43,7 @@ public void lockInterruptibly() throws InterruptedException
 重入获取。 
 
 指定者： 接口 Lock 中的 lockInterruptibly
+
 抛出：   InterruptedException   如果当前线程已中断。
 
 简单来说就是处理锁前先处理中断
