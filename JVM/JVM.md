@@ -199,7 +199,7 @@
 
 ##### 分类
 
-Bootstrap classloader
+Bootstrap classloader 主要负责加载核心的类库(java.lang.*等)，构造ExtClassLoader和APPClassLoader。
 
 Extension ClassLoader 加载jre/lib/ext下的类库与java.ext.dir指定目录的类库
 
