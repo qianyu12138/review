@@ -49,7 +49,7 @@ InnoDB 有一个后台线程，每隔 1 秒，就会把 redo log buffer 中的�
 
 是三个并发事务 (trx1, trx2, trx3) 在 prepare 阶段，都写完 redo log buffer，持久化到磁盘的过程，对应的 LSN 分别是 50、120 和 160。
 
-![](img/933fdc052c6339de2aa3bf3f65b188cc.png)
+![](./img/933fdc052c6339de2aa3bf3f65b188cc.png)
 
 trx1 是第一个到达的，会被选为这组的 leader；
 
@@ -67,7 +67,7 @@ trx1 去写盘的时候，带的就是 LSN=160，因此等 trx1 返回时，所�
 
 binlog组提交：
 
-![](img/5ae7d074c34bc5bd55c82781de670c28.png)
+<img src="./img/5ae7d074c34bc5bd55c82781de670c28.png" style="zoom:50%;" />
 
 这么一来，binlog 也可以组提交了。在执行图 5 中第 4 步把 binlog fsync 到磁盘时，如果有多个事务的 binlog 已经写完了，也是一起持久化的，这样也可以减少 IOPS 的消耗。
 

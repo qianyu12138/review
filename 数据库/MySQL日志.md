@@ -14,7 +14,7 @@ MySQL 在更新数据时，为了减少磁盘的随机 IO，因此并不会直�
 
 redo log的大小是固定的，可以配置四个文件（配置），每个文件1G（配置），循环写每个文件。
 
-![](img/16a7950217b3f0f4ed02db5db59562a7.png)
+![](./img/16a7950217b3f0f4ed02db5db59562a7.png)
 
 write pos 是当前记录的位置，一边写一边后移，写到第 3 号文件末尾后就回到 0 号文件开头。checkpoint 是当前要擦除的位置，也是往后推移并且循环的，擦除记录前要把记录更新到数据文件。
 
@@ -33,7 +33,7 @@ write pos 和 checkpoint 之间的是可写部分，可以用来记录新的操�
 
 
 
-![](img/733013-20180508104623183-690986409.png)
+![](./img/733013-20180508104623183-690986409.png)
 
 #### 数据库宕机恢复
 
@@ -55,7 +55,7 @@ mysql采用这种策略来防止宕机数据丢失，即事务提交时，先写
 
 全量备份+binlog
 
-![](img/20190326103256132.jpeg)
+![](./img/20190326103256132.jpeg)
 
 #### 两阶段提交
 
@@ -79,7 +79,7 @@ mysql采用这种策略来防止宕机数据丢失，即事务提交时，先写
 
 ##### 两阶段提交
 
-![2e5bff4910ec189fe1ee6e2ecc7b4bbe](img/2e5bff4910ec189fe1ee6e2ecc7b4bbe.png)
+![2e5bff4910ec189fe1ee6e2ecc7b4bbe](./img/2e5bff4910ec189fe1ee6e2ecc7b4bbe.png)
 
 #### 写入方式
 
@@ -91,7 +91,7 @@ binlog 的写入逻辑比较简单：事务执行过程中，先把日志写到 
 
 事务提交的时候，执行器把 binlog cache 里的完整事务写入到 binlog 中，并清空 binlog cache。状态如图 1 所示。
 
-![](img/9ed86644d5f39efb0efec595abb92e3e.png)
+![](./img/9ed86644d5f39efb0efec595abb92e3e.png)
 
 可以看到，每个线程有自己 binlog cache，但是共用同一份 binlog 文件。
 
@@ -115,7 +115,7 @@ write 和 fsync 的时机，是由参数 sync_binlog 控制的：
 
 MVCC：
 
-![68d08d277a6f7926a41cc5541d3dfced (1)](img/68d08d277a6f7926a41cc5541d3dfced (1).png)
+![68d08d277a6f7926a41cc5541d3dfced (1)](./img/68d08d277a6f7926a41cc5541d3dfced (1).png)
 
 ### 存储方式：
 
