@@ -6,16 +6,6 @@
 
 每个线程都持有变量的副本，当需要线程之间通信时，要先改变副本，在提交到堆中。
 
-### ThreadLocal
-
-线程局部变量，当使用ThreadLocal维护的变量时，ThreadLocal为每个线程提供了独立的变量副本，每个线程可以独立的使用该变量。
-
-由ThreadLocalMap支持：每个线程内部有有一个ThreadLocal.ThreadLocalMap类型的成员变量threadLocals，以当前ThreadLocal变量为键，要保存的副本变量为值保存。
-
-即变量保存在每个线程自己的threadLocals中。
-
-在进行get之前必须进行set，或重写initialValue()，否则报空指针异常。
-
 ### Clone方法
 
 java.lang.Cloneable是一个标志性接口，不包含任何方法，clone方法在Object类中定义。clone是一个本地方法，由C或C++实现。
@@ -95,10 +85,6 @@ public BigDecimal(double val);不建议用，因为本身double就不能精确�
 public BigDecimal(int val)
 
 public BigDecimal(String val)建议采用，double可采用Double.toString(double val) 转换。
-
-### 是否可以在static环境下访问非static变量
-
-由于static环境在虚拟机载入的时候执行，此时不通过实例访问非static变量，编译器会报错，因为这些变量还没有被创建出来。
 
 ### 是否可以覆盖static变量或private变量
 
@@ -272,6 +258,12 @@ StringBuffer和StringBuilder都继承了AbstractStringBuilder，底层都是利�
 
 ![](img/异常类型.png)
 
+Exception是程序正常运行中可以预料的意外情况，可能并且应该被捕获，进行相应处理。Error则是指在正常情况下，不大可能出现的情况，绝大部分的Error都会导致程序（比如JVM）处于非正常的、不可恢复状态。既然是非正常情况，所以不便于也不需要捕获，常见的比如OutOfMemoryError，其为Error的子类。
+
+NoClassDefFoundError 由虚拟机抛出，编译的时候存在，编译后运行时找不到class
+
+ClassNotFoundException 当动态加载一些类找不到时抛出。
+
 ### Object的方法
 
 hashCode():int
@@ -304,13 +296,5 @@ hashCode的存在是为了在一些散列的比较中提高equal的效率，先�
 
 java的clone是浅拷贝。
 
-### RuntimeException Exception Error
 
-![img](./img/error.png)
-
-Exception是程序正常运行中可以预料的意外情况，可能并且应该被捕获，进行相应处理。Error则是指在正常情况下，不大可能出现的情况，绝大部分的Error都会导致程序（比如JVM）处于非正常的、不可恢复状态。既然是非正常情况，所以不便于也不需要捕获，常见的比如OutOfMemoryError，其为Error的子类。
-
-NoClassDefFoundError 由虚拟机抛出，编译的时候存在，编译后运行时找不到class
-
-ClassNotFoundException 当动态加载一些类找不到时抛出。
 

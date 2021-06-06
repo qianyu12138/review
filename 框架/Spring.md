@@ -1,6 +1,6 @@
 # SpringMVC
 
-![Springmvc](springmvc.jpg)
+![Springmvc](./springmvc.jpg)
 
 # Spring
 
