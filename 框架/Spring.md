@@ -55,7 +55,11 @@ bean赋值，注入其他组件(一些xxxAware，常用的ApplicationContextAwar
 
 容器启动时，使用AnnoactionBeanDefinationReader或XmlBeanDefinationReader将bean配置读入内存，以BeanDefination的形式存在于BeanDefinationRegistry中。
 
-默认懒加载，需要时才启动Bean的实例化，将BeanDefination转换成BeanWapper，通过其封装的反射方法调用构造器建立对象与属性，之后是一系列BeanPostProcesser，比如对象依赖注入，如果依赖其他Bean则暂停当前初始化，去创建其他Bean（三级缓存），aware接口（ApplicationContextAware等），自定义的初始化销毁方法。
+默认懒加载，需要时才启动Bean的实例化，将BeanDefination转换成BeanWapper，通过其封装的反射方法调用构造器建立对象与属性，之后是一系列BeanPostProcesser，比如对象依赖注入（其实严格的说对象依赖注入并不是使用beanpostProcessor原理，AutowireAnnotationBeanPostProcessor对BeanPostProcessor的实现只是直接返回原bean，依赖注入是通过另外的方法在populateBean方法里实现的），如果依赖其他Bean则暂停当前初始化，去创建其他Bean（三级缓存），aware接口（ApplicationContextAware等），自定义的初始化销毁方法。
+
+先注入，再初始化（beanPostProcessor)
+
+![image-20210818162034947](./image-20210818162034947.png)
 
 ## 三级缓存
 

@@ -289,9 +289,83 @@ bgsave期间如果修改键，这个数据会被复制一份，子进程将副�
 
 https://time.geekbang.org/column/article/271839
 
-## Redis是如何保证主从数据一致性的
+## Redis主从同步
 
-### 初次同步
+### 主从复制过程
+
+**复制初始化阶段**
+
+1. 执行完slaveof命令后，slave向master发起socket连接
+2. slave向master发送`ping`命令，以证明master存活，master回复`pong`
+3. slave `auth` master
+
+**数据同步阶段**
+
+slave向master发送`psync`命令，主库决定进行增量同步还是全量同步。
+
+**命令传播阶段**
+
+维护心跳，master向slave发送`ping`判断slave存活，默认10s；slave每秒向master发送命令`REPLCONF ACK {offset}`，在判断master状态的同时告知自己的数据状态以拉取最新数据。
+
+### 数据同步psync
+
+2.8
+
+#### psync1
+
+##### 全量同步
+
+`PSYNC ? -1`
+
+前者和 SYNC 大致相同，都是让 ***master*** 生成并发送 RDB 文件，然后再将保存在缓冲区中的写命令传播给 ***slave*** 来进行同步，相当于只有同步和命令传播两个阶段。
+
+##### 部分重同步
+
+`PSYNC <runid> <offset>`
+
+部分同步适用于断线重连之后的同步，***slave*** 只需要接收断线期间丢失的写命令就可以，不需要进行全量同步。为了实现部分同步，引入了复制偏移量***（offset）***、复制积压缓冲区***（replication backlog buffer）***和运行 ID ***（run_id）***三个概念。
+
+| **复制偏移量**     | 执行主从复制的双方都会分别维护一个复制偏移量，***master*** 每次向 ***slave*** 传播 ***N*** 个字节，自己的复制偏移量就增加 ***N***；同理 ***slave*** 接收 ***N*** 个字节，自身的复制偏移量也增加 ***N***。通过对比主从之间的复制偏移量就可以知道主从间的同步状态。 |
+| ------------------ | ------------------------------------------------------------ |
+| **复制积压缓冲区** | 复制积压缓冲区是 ***master*** 维护的一个固定长度的 FIFO 队列，默认大小为 1MB。当 ***master*** 进行命令传播时，不仅将写命令发给 ***slave*** 还会同时写进复制积压缓冲区，因此 ***master*** 的复制积压缓冲区会保存一部分最近传播的写命令。当 ***slave*** 重连上 ***master*** 时会将自己的复制偏移量通过 ***PSYNC*** 命令发给 ***master***，***master*** 检查自己的复制积压缓冲区，如果发现这部分未同步的命令还在自己的复制积压缓冲区中的话就可以利用这些保存的命令进行部分同步，反之如果断线太久这部分命令已经不在复制缓冲区中了，那没办法只能进行全量同步。 |
+| **运行 ID**        | 令人疑惑的是上述逻辑看似已经很圆满了，这个 ***run_id*** 是做什么用呢？其实这是因为 ***master*** 可能会在 ***slave*** 断线期间发生变更，例如可能超时失去联系或者宕机导致断线重连的是一个崭新的 ***master***，不再是断线前复制的那个了。自然崭新的 ***master*** 没有之前维护的复制积压缓冲区，只能进行全量同步。因此每个 Redis server 都会有自己的运行 ID，由 40 个随机的十六进制字符组成。当 ***slave*** 初次复制 ***master*** 时，***master*** 会将自己的运行 ID 发给 ***slave*** 进行保存，这样 ***slave***重连时再将这个运行  ID 发送给重连上的 ***master*** ，***master*** 会接受这个 ID 并于自身的运行 ID 比较进而判断是否是同一个 ***master***。 |
+
+- 如果 ***master*** 返回 +FULLRESYNC <runid> <offset> 回复，那么表示 ***master*** 将与 ***slave*** 执行完整重同步操作：其中 runid 是这个 ***master*** 的运行 ID，***slave*** 会将这个 ID 保存起来，在下一次发送 PSYNC 命令时使用；而 ***offset*** 则是 ***master*** 当前的复制偏移量，***slave*** 会将这个值作为自己的初始化偏移量
+- 如果 ***master*** 返回 +CONTINUE 回复，那么表示 ***master*** 将与 ***slave*** 执行部分同步操作，***slave*** 只要等着 ***master*** 将自己缺少的那部分数据发送过来就可以了
+- 如果 ***master*** 返回 -ERR 回复，那么表示 ***master*** 的版本低于 Redis 2.8，它识别不了 ***psync*** 命令，***slave*** 将向 ***master*** 发送 ***SYNC*** 命令，并与 ***master*** 执行完整同步操作
+
+#### psync2
+
+4.0
+
+优化细节：
+
+1. 当slave提升为master后，其他slave可以从新master上进行部分重同步。
+2. 当slave重启后，可以进行部分重同步。
+
+redis4.0引入***master_replid 2***来存放**同步过**的master的复制id（运行id）
+
+```C
+// 如果 slave 发送过来的复制 ID 是当前 master 的复制 ID, 说明 master 没变过
+if (strcasecmp(master_replid, server.replid) &&   
+    // 或者和现在的新 master 曾经属于同一 master
+    (strcasecmp(master_replid, server.replid2) ||      
+     // 但同步进度不能比当前 master 还快
+     psync_offset > server.second_replid_offset)) {
+  ... ...
+}
+
+// 判断同步进度是否已经超过范围
+if (!server.repl_backlog ||                                                        
+    psync_offset < server.repl_backlog_off ||                                      
+    psync_offset > (server.repl_backlog_off + server.repl_backlog_histlen)) {                                                                                  
+    ... ...
+}  
+```
+
+### Redis是如何保证主从数据一致性的
+
+#### 初次同步
 
 redis的主从复制是，当一个redis从节点连接到主库上时，向主库发送psync命令，在主库上执行bgsave命令，并把生成的rdb文件下载到从库上，结束后再发送缓冲区的命令。
 
@@ -299,7 +373,7 @@ redis的主从复制是，当一个redis从节点连接到主库上时，向主�
 
 通常主从模式是主库写从库读，如果要求主从数据强一致性，那么这种模式就不适合这样的场景，通常的做法是，不使用主从模式，为了缓解压力可以根据Hash槽或业务进行拆分，读写都在同一个实例上。为了保证高可用可对每个实例设置从节点，但不进行读写操作。
 
-### 断线重连
+#### 断线重连
 
 实际上当slave发送psync命令给master之后，master还需要根据以下三点判断是否进行部分同步。
 
