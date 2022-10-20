@@ -260,6 +260,11 @@ Sping的代理是两种代理方式的混合。优先使用动态代理。
 @Transcation、@Async等
 
 - 非public方法（切点检查方法作用域必须为public）
-
 - 类内调用（只有当事务方法被当前类以外的代码调用时，才会由Spring生成的代理对象来管理。）
+
+
+
+AOP与动态代理：
+
+https://blog.csdn.net/gongsenlin341/article/details/111240114
 
