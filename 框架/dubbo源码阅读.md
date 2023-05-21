@@ -160,3 +160,48 @@ private Class<?> createAdaptiveExtensionClass() {
   return compiler.compile(type, code, classLoader);
 }
 ```
+
+## SPI
+
+> org.apache.dubbo.common.extension.ExtensionLoader#getAdaptiveExtension
+>
+> org.apache.dubbo.common.extension.ExtensionLoader#createAdaptiveExtension
+>
+> org.apache.dubbo.common.extension.ExtensionLoader#getAdaptiveExtensionClass
+>
+> org.apache.dubbo.common.extension.ExtensionLoader#getExtensionClasses
+>
+> org.apache.dubbo.common.extension.ExtensionLoader#loadExtensionClasses
+
+```java
+private Map<String, Class<?>> loadExtensionClasses() {
+  checkDestroyed();
+  cacheDefaultExtensionName();
+
+  Map<String, Class<?>> extensionClasses = new HashMap<>();
+
+  for (LoadingStrategy strategy : strategies) {//    private static volatile LoadingStrategy[] strategies = loadLoadingStrategies();
+    loadDirectory(extensionClasses, strategy, type.getName());
+
+    // compatible with old ExtensionFactory
+    if (this.type == ExtensionInjector.class) {
+      loadDirectory(extensionClasses, strategy, ExtensionFactory.class.getName());
+    }
+  }
+
+  return extensionClasses;
+}
+
+private static LoadingStrategy[] loadLoadingStrategies() {
+  return stream(load(LoadingStrategy.class).spliterator(), false)
+    .sorted()
+    .toArray(LoadingStrategy[]::new);
+}
+
+public static <S> ServiceLoader<S> load(Class<S> service) {
+  ClassLoader cl = Thread.currentThread().getContextClassLoader();
+  return ServiceLoader.load(service, cl);
+}
+```
+
+底层使用Java的SPI
